@@ -15,7 +15,7 @@ with st.sidebar:
             f.write(uploaded_csv.getbuffer())
         st.success("Dataset uploaded")
 
-# Try to load saved model
+# Load model
 @st.cache_resource
 def load_model():
     try:
@@ -23,7 +23,7 @@ def load_model():
         st.success("✅ Loaded trained model")
         return model
     except:
-        st.error("Model file not found. Train and download 'als_model.pkl' from Colab.")
+        st.error("❌ Model file 'als_model.pkl' not found. Upload it to GitHub.")
         return None
 
 model = load_model()
@@ -38,6 +38,7 @@ if model:
         shimmer = st.number_input("Shimmer (S1_a)", value=0.0, format="%.4f")
     
     if st.button("Predict", type="primary"):
+        # Match exact feature names from training
         input_data = {
             'Sex': 0 if sex == "Female" else 1,
             'Age': float(age),
@@ -46,12 +47,17 @@ if model:
         }
         
         input_df = pd.DataFrame([input_data])
-        pred = model.predict(input_df)[0]
-        proba = model.predict_proba(input_df)[0, 1]
         
-        if pred == 1:
-            st.error(f"**ALS Likely Present** (Probability: {proba:.1%})")
-        else:
-            st.success(f"**ALS Likely Not Present** (Probability: {proba:.1%})")
+        try:
+            pred = model.predict(input_df)[0]
+            proba = model.predict_proba(input_df)[0, 1]
+            
+            if pred == 1:
+                st.error(f"**ALS Likely Present** (Probability: {proba:.1%})")
+            else:
+                st.success(f"**ALS Likely Not Present** (Probability: {proba:.1%})")
+        except Exception as e:
+            st.error(f"Error: {e}")
+            st.info("Check that model was trained with columns: Sex, Age, J1_a, S1_a")
 else:
-    st.info("Upload als_model.pkl or train in Colab first.")
+    st.info("Upload als_model.pkl to your GitHub repo and redeploy.")
