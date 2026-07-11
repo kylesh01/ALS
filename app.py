@@ -11,14 +11,15 @@ with st.sidebar:
     uploaded_csv = st.file_uploader("Upload your CSV", type="csv")
     if uploaded_csv:
         df = pd.read_csv(uploaded_csv)
-        st.success("Dataset loaded!")
-
-        # Preprocessing
+        
+        # Clean data
+        df = df.dropna()
         if 'Sex' in df.columns and df['Sex'].dtype == 'object':
             from sklearn.preprocessing import LabelEncoder
             le = LabelEncoder()
             df['Sex'] = le.fit_transform(df['Sex'])
-        df = df.dropna()
+        
+        st.success("Dataset loaded and cleaned!")
 
         features = ['Age', 'Sex', 'J1_a', 'S1_a']
         X = df[features]
@@ -26,7 +27,7 @@ with st.sidebar:
 
         model = LogisticRegression(max_iter=1000, random_state=42)
         model.fit(X, y)
-        st.success("Model trained!")
+        st.success("Model trained successfully!")
 
         # Inputs
         col1, col2 = st.columns(2)
