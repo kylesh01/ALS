@@ -12,14 +12,19 @@ with st.sidebar:
     if uploaded_csv:
         df = pd.read_csv(uploaded_csv)
         
-        # Clean data
+        # Clean and convert to numeric
         df = df.dropna()
+        for col in ['Age', 'J1_a', 'S1_a']:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
         if 'Sex' in df.columns and df['Sex'].dtype == 'object':
             from sklearn.preprocessing import LabelEncoder
             le = LabelEncoder()
             df['Sex'] = le.fit_transform(df['Sex'])
         
-        st.success("Dataset loaded and cleaned!")
+        df = df.dropna()  # Drop any remaining non-numeric
+        
+        st.success(f"Dataset loaded! {len(df)} rows used.")
 
         features = ['Age', 'Sex', 'J1_a', 'S1_a']
         X = df[features]
@@ -27,9 +32,8 @@ with st.sidebar:
 
         model = LogisticRegression(max_iter=1000, random_state=42)
         model.fit(X, y)
-        st.success("Model trained successfully!")
+        st.success("Model trained!")
 
-        # Inputs
         col1, col2 = st.columns(2)
         with col1:
             age = st.number_input("Age", 0, 120, 50)
