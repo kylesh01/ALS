@@ -23,7 +23,7 @@ def load_model():
         st.success("✅ Loaded trained model")
         return model
     except:
-        st.error("❌ Model file 'als_model.pkl' not found. Upload it to GitHub.")
+        st.error("❌ Upload als_model.pkl to GitHub")
         return None
 
 model = load_model()
@@ -38,15 +38,13 @@ if model:
         shimmer = st.number_input("Shimmer (S1_a)", value=0.0, format="%.4f")
     
     if st.button("Predict", type="primary"):
-        # Match exact feature names from training
-        input_data = {
-            'Sex': 0 if sex == "Female" else 1,
-            'Age': float(age),
-            'J1_a': jitter,
-            'S1_a': shimmer
-        }
-        
-        input_df = pd.DataFrame([input_data])
+        # Exact column order and names
+        input_df = pd.DataFrame({
+            'Sex': [0 if sex == "Female" else 1],
+            'Age': [float(age)],
+            'J1_a': [jitter],
+            'S1_a': [shimmer]
+        })
         
         try:
             pred = model.predict(input_df)[0]
@@ -58,6 +56,5 @@ if model:
                 st.success(f"**ALS Likely Not Present** (Probability: {proba:.1%})")
         except Exception as e:
             st.error(f"Error: {e}")
-            st.info("Check that model was trained with columns: Sex, Age, J1_a, S1_a")
 else:
-    st.info("Upload als_model.pkl to your GitHub repo and redeploy.")
+    st.info("Upload als_model.pkl to GitHub and redeploy.")
