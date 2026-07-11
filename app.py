@@ -38,10 +38,10 @@ if model:
         shimmer = st.number_input("Shimmer (S1_a)", value=0.0, format="%.4f")
     
     if st.button("Predict", type="primary"):
-        # Exact column order and names
+        # Exact order: Age, Sex, J1_a, S1_a
         input_df = pd.DataFrame({
-            'Sex': [0 if sex == "Female" else 1],
             'Age': [float(age)],
+            'Sex': [0 if sex == "Female" else 1],
             'J1_a': [jitter],
             'S1_a': [shimmer]
         })
